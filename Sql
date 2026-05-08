@@ -1,0 +1,52 @@
+-- 1. Категория
+CREATE TABLE Категория (
+    id            NUMBER PRIMARY KEY,
+    наименование  VARCHAR2(200) NOT NULL
+);
+
+-- 2. Клиент
+CREATE TABLE Клиент (
+    id                NUMBER PRIMARY KEY,
+    email             VARCHAR2(250) UNIQUE NOT NULL,
+    имя               VARCHAR2(150) NOT NULL,
+    дата_регистрации  DATE DEFAULT SYSDATE
+);
+
+-- 3. Товар (зависит от Категории)
+CREATE TABLE Товар (
+    id            NUMBER PRIMARY KEY,
+    id_категории  NUMBER NOT NULL,
+    название      VARCHAR2(300) NOT NULL,
+    описание      CLOB,
+    цена          NUMBER(10,2) NOT NULL,
+    остаток       NUMBER DEFAULT 0,
+    CONSTRAINT fk_товар_категория FOREIGN KEY (id_категории)
+        REFERENCES Категория(id)
+);
+
+-- 4. Заказ (зависит от Клиента)
+CREATE TABLE Заказ (
+    id              NUMBER PRIMARY KEY,
+    id_клиента      NUMBER NOT NULL,
+    дата_создания   DATE DEFAULT SYSDATE,
+    статус          VARCHAR2(50) DEFAULT 'Новый',
+    итоговая_сумма  NUMBER(12,2),
+    CONSTRAINT fk_заказ_клиент FOREIGN KEY (id_клиента)
+        REFERENCES Клиент(id)
+);
+
+-- 5. Корзина (зависит от Клиента, Товара и Заказа)
+-- id_заказа может быть NULL, пока заказ не оформлен
+CREATE TABLE Корзина (
+    id            NUMBER PRIMARY KEY,
+    id_клиента    NUMBER NOT NULL,
+    id_товара     NUMBER NOT NULL,
+    id_заказа     NUMBER,
+    количество    NUMBER DEFAULT 1,
+    CONSTRAINT fk_корзина_клиент FOREIGN KEY (id_клиента)
+        REFERENCES Клиент(id),
+    CONSTRAINT fk_корзина_товар FOREIGN KEY (id_товара)
+        REFERENCES Товар(id),
+    CONSTRAINT fk_корзина_заказ FOREIGN KEY (id_заказа)
+        REFERENCES Заказ(id)
+);
