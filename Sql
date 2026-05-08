@@ -1,52 +1,52 @@
--- 1. Категория
-CREATE TABLE Категория (
+-- 1. Category
+CREATE TABLE Category (
     id            NUMBER PRIMARY KEY,
-    наименование  VARCHAR2(200) NOT NULL
+    name          VARCHAR2(200) NOT NULL
 );
 
--- 2. Клиент
-CREATE TABLE Клиент (
+-- 2. Customer
+CREATE TABLE Customer (
     id                NUMBER PRIMARY KEY,
     email             VARCHAR2(250) UNIQUE NOT NULL,
-    имя               VARCHAR2(150) NOT NULL,
-    дата_регистрации  DATE DEFAULT SYSDATE
+    name              VARCHAR2(150) NOT NULL,
+    registration_date DATE DEFAULT SYSDATE
 );
 
--- 3. Товар (зависит от Категории)
-CREATE TABLE Товар (
+-- 3. Product (depends on Category)
+CREATE TABLE Product (
     id            NUMBER PRIMARY KEY,
-    id_категории  NUMBER NOT NULL,
-    название      VARCHAR2(300) NOT NULL,
-    описание      CLOB,
-    цена          NUMBER(10,2) NOT NULL,
-    остаток       NUMBER DEFAULT 0,
-    CONSTRAINT fk_товар_категория FOREIGN KEY (id_категории)
-        REFERENCES Категория(id)
+    category_id   NUMBER NOT NULL,
+    name          VARCHAR2(300) NOT NULL,
+    description   CLOB,
+    price         NUMBER(10,2) NOT NULL,
+    stock         NUMBER DEFAULT 0,
+    CONSTRAINT fk_product_category FOREIGN KEY (category_id)
+        REFERENCES Category(id)
 );
 
--- 4. Заказ (зависит от Клиента)
-CREATE TABLE Заказ (
+-- 4. Orders (depends on Customer)
+CREATE TABLE Orders (
     id              NUMBER PRIMARY KEY,
-    id_клиента      NUMBER NOT NULL,
-    дата_создания   DATE DEFAULT SYSDATE,
-    статус          VARCHAR2(50) DEFAULT 'Новый',
-    итоговая_сумма  NUMBER(12,2),
-    CONSTRAINT fk_заказ_клиент FOREIGN KEY (id_клиента)
-        REFERENCES Клиент(id)
+    customer_id     NUMBER NOT NULL,
+    order_date      DATE DEFAULT SYSDATE,
+    status          VARCHAR2(50) DEFAULT 'New',
+    total_amount    NUMBER(12,2),
+    CONSTRAINT fk_order_customer FOREIGN KEY (customer_id)
+        REFERENCES Customer(id)
 );
 
--- 5. Корзина (зависит от Клиента, Товара и Заказа)
--- id_заказа может быть NULL, пока заказ не оформлен
-CREATE TABLE Корзина (
+-- 5. Cart_Item (depends on Customer, Product and Orders)
+-- order_id can be NULL until the order is placed
+CREATE TABLE Cart_Item (
     id            NUMBER PRIMARY KEY,
-    id_клиента    NUMBER NOT NULL,
-    id_товара     NUMBER NOT NULL,
-    id_заказа     NUMBER,
-    количество    NUMBER DEFAULT 1,
-    CONSTRAINT fk_корзина_клиент FOREIGN KEY (id_клиента)
-        REFERENCES Клиент(id),
-    CONSTRAINT fk_корзина_товар FOREIGN KEY (id_товара)
-        REFERENCES Товар(id),
-    CONSTRAINT fk_корзина_заказ FOREIGN KEY (id_заказа)
-        REFERENCES Заказ(id)
+    customer_id   NUMBER NOT NULL,
+    product_id    NUMBER NOT NULL,
+    order_id      NUMBER,
+    quantity      NUMBER DEFAULT 1,
+    CONSTRAINT fk_cart_customer FOREIGN KEY (customer_id)
+        REFERENCES Customer(id),
+    CONSTRAINT fk_cart_product FOREIGN KEY (product_id)
+        REFERENCES Product(id),
+    CONSTRAINT fk_cart_order FOREIGN KEY (order_id)
+        REFERENCES Orders(id)
 );
